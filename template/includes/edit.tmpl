@@ -1,0 +1,195 @@
+{{ define "content" }}
+<div class="card">
+    <h1>✏️ 编辑视频信息</h1>
+    
+    <!-- 显示错误信息 -->
+    {{ if .error }}
+    <div style="
+        background-color: #f8d7da; 
+        color: #721c24; 
+        padding: 12px; 
+        border-radius: 5px; 
+        margin-bottom: 20px; 
+        border: 1px solid #f5c6cb;
+        display: flex;
+        align-items: center;
+    ">
+        <span style="font-weight: bold; margin-right: 8px;">⚠️ 错误:</span>
+        <span>{{ .error }}</span>
+    </div>
+    {{ end }}
+    
+    <form action="/update" method="post" style="max-width: 600px;">
+        <input type="hidden" name="id" value="{{ .video.ID }}">
+        
+        <div style="margin-bottom: 20px;">
+            <label style="
+                display: block; 
+                margin-bottom: 5px; 
+                font-weight: 600; 
+                color: #555;
+            ">ID:</label>
+            <input type="text" 
+                   value="{{ .video.ID }}" 
+                   readonly 
+                   style="
+                       width: 100%; 
+                       padding: 10px; 
+                       border: 1px solid #ddd; 
+                       border-radius: 5px; 
+                       background-color: #f8f9fa;
+                       font-weight: bold;
+                   ">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="
+                display: block; 
+                margin-bottom: 5px; 
+                font-weight: 600; 
+                color: #555;
+            ">名称:</label>
+            <input type="text" 
+                   name="name" 
+                   value="{{ .video.Filename }}" 
+                   required
+                   style="
+                       width: 100%; 
+                       padding: 10px; 
+                       border: 1px solid #ddd; 
+                       border-radius: 5px; 
+                       font-size: 14px;
+                       transition: border-color 0.3s ease;
+                   "
+                   placeholder="请输入视频名称">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="
+                display: block; 
+                margin-bottom: 5px; 
+                font-weight: 600; 
+                color: #555;
+            ">路径:</label>
+            <input type="text" 
+                   name="path" 
+                   value="{{ .video.FilePath }}" 
+                   required
+                   style="
+                       width: 100%; 
+                       padding: 10px; 
+                       border: 1px solid #ddd; 
+                       border-radius: 5px; 
+                       font-size: 14px;
+                       transition: border-color 0.3s ease;
+                   "
+                   placeholder="请输入文件路径">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="
+                display: block; 
+                margin-bottom: 5px; 
+                font-weight: 600; 
+                color: #555;
+            ">文件大小:</label>
+            <input type="text" 
+                   name="size" 
+                   value="{{ .video.Filesize }}" 
+                   required
+                   style="
+                       width: 100%; 
+                       padding: 10px; 
+                       border: 1px solid #ddd; 
+                       border-radius: 5px; 
+                       font-size: 14px;
+                       transition: border-color 0.3s ease;
+                   "
+                   placeholder="请输入文件大小">
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <button type="submit" 
+                    style="
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 5px;
+                        font-size: 16px;
+                        cursor: pointer;
+                        margin-right: 10px;
+                        transition: all 0.3s ease;
+                    "
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                💾 保存更改
+            </button>
+            
+            <a href="/home" 
+               style="
+                   display: inline-block;
+                   background-color: #6c757d;
+                   color: white;
+                   padding: 12px 24px;
+                   text-decoration: none;
+                   border-radius: 5px;
+                   font-size: 16px;
+                   transition: all 0.3s ease;
+               "
+               onmouseover="this.style.backgroundColor='#5a6268'; this.style.transform='translateY(-2px)';"
+               onmouseout="this.style.backgroundColor='#6c757d'; this.style.transform='translateY(0)'">
+                📋 返回列表
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // 添加表单验证
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const inputs = form.querySelectorAll('input[type="text"]');
+        
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#667eea';
+                this.style.boxShadow = '0 0 5px rgba(102, 126, 234, 0.3)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.style.borderColor = '#ddd';
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // 表单提交前验证
+        form.addEventListener('submit', function(e) {
+            const nameInput = form.querySelector('input[name="name"]');
+            const pathInput = form.querySelector('input[name="path"]');
+            const sizeInput = form.querySelector('input[name="size"]');
+            
+            if (!nameInput.value.trim()) {
+                alert('名称不能为空');
+                nameInput.focus();
+                e.preventDefault();
+                return;
+            }
+            
+            if (!pathInput.value.trim()) {
+                alert('路径不能为空');
+                pathInput.focus();
+                e.preventDefault();
+                return;
+            }
+            
+            if (!sizeInput.value.trim()) {
+                alert('文件大小不能为空');
+                sizeInput.focus();
+                e.preventDefault();
+                return;
+            }
+        });
+    });
+</script>
+{{ end }}

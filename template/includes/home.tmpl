@@ -1,0 +1,181 @@
+{{ define "content" }}
+<div class="card" style="position: relative;">
+    <h1>🎬 影片列表</h1>
+    
+    <div class="stats">
+        <p>📊 当前第 {{ .page }} 页，共 {{ .total_pages }} 页，总计 {{ .total }} 条数据</p>
+        {{ if .keyword }}
+        <p style="margin-top: 5px; font-style: italic;">🔍 搜索关键词: "{{ .keyword }}"</p>
+        {{ end }}
+    </div>
+    
+    <!-- 搜索框放在表格右上角 -->
+    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 10;">
+        <form action="/home" method="get" style="display: flex; gap: 10px; align-items: center;">
+            <input type="hidden" name="page" value="1">
+            <input type="hidden" name="page_size" value="{{ .page_size }}">
+            <input type="text" 
+                   name="keyword" 
+                   value="{{ .keyword }}" 
+                   placeholder="搜索名称或路径..." 
+                   style="
+                       padding: 8px 12px;
+                       border: 1px solid #ddd;
+                       border-radius: 4px;
+                       font-size: 14px;
+                       min-width: 200px;
+                       transition: border-color 0.3s ease;
+                   "
+                   onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 5px rgba(102, 126, 234, 0.3)'"
+                   onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none'">
+            <button type="submit" 
+                    style="
+                        padding: 8px 15px;
+                        background-color: #667eea;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: background-color 0.3s ease;
+                    "
+                    onmouseover="this.style.backgroundColor='#5a67d8'"
+                    onmouseout="this.style.backgroundColor='#667eea'">
+                🔍 搜索
+            </button>
+            {{ if .keyword }}
+            <a href="/home?page=1&page_size={{ .page_size }}" 
+               style="
+                   padding: 8px 15px;
+                   background-color: #6c757d;
+                   color: white;
+                   text-decoration: none;
+                   border-radius: 4px;
+                   cursor: pointer;
+                   font-size: 14px;
+                   transition: background-color 0.3s ease;
+               "
+               onmouseover="this.style.backgroundColor='#5a6268'"
+               onmouseout="this.style.backgroundColor='#6c757d'">
+                清除
+            </a>
+            {{ end }}
+        </form>
+    </div>
+    
+    <div style="overflow-x: auto; border: 2px solid #e0e0e0; border-radius: 8px; padding: 1px;">
+        <table style="min-width: 100%; border-collapse: separate; border-spacing: 0;">
+            <thead>
+                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e0e0e0;">
+                    <th style="min-width: 80px; padding: 15px; text-align: left; border-right: 1px solid #e0e0e0; background-color: #f1f3f5;">
+                        ID
+                    </th>
+                    <th style="min-width: 200px; padding: 15px; text-align: left; border-right: 1px solid #e0e0e0; background-color: #f1f3f5;">
+                        名称
+                    </th>
+                    <th style="min-width: 300px; padding: 15px; text-align: left; border-right: 1px solid #e0e0e0; background-color: #f1f3f5;">
+                        路径
+                    </th>
+                    <th style="min-width: 120px; padding: 15px; text-align: left; border-right: 1px solid #e0e0e0; background-color: #f1f3f5;">
+                        文件大小
+                    </th>
+                    <th style="min-width: 150px; padding: 15px; text-align: left; border-right: 1px solid #e0e0e0; background-color: #f1f3f5;">
+                        创建时间
+                    </th>
+                    <th style="min-width: 150px; padding: 15px; text-align: center; background-color: #f1f3f5;">
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ if .videos }}
+                    {{ range .videos }}
+                    <tr style="height: 60px; border-bottom: 1px solid #e0e0e0;">
+                        <td style="padding: 15px; vertical-align: middle; border-right: 1px solid #e0e0e0;">
+                            <strong style="color: #667eea; font-size: 16px;">{{ .ID }}</strong>
+                        </td>
+                        <td style="padding: 15px; vertical-align: middle; word-break: break-word; border-right: 1px solid #e0e0e0;">
+                            <div style="font-weight: 500; color: #333; font-size: 15px;">
+                                {{ .Filename }}
+                            </div>
+                        </td>
+                        <td style="padding: 15px; vertical-align: middle; word-break: break-all; border-right: 1px solid #e0e0e0;">
+                            <div style="font-family: monospace; font-size: 13px; color: #666; background-color: #f8f9fa; padding: 8px; border-radius: 4px; display: inline-block; max-width: 100%;">
+                                {{ .FilePath }}
+                            </div>
+                        </td>
+                        <td style="padding: 15px; vertical-align: middle; border-right: 1px solid #e0e0e0;">
+                            <span style="background-color: #e9ecef; padding: 5px 10px; border-radius: 15px; font-weight: 500; color: #495057; font-size: 14px;">
+                                {{ .Filesize }}
+                            </span>
+                        </td>
+                        <td style="padding: 15px; vertical-align: middle; border-right: 1px solid #e0e0e0;">
+                            <div style="font-size: 14px; color: #666;">
+                                {{ formatDate .UpdatedAt }}
+                            </div>
+                        </td>
+                        <td style="padding: 15px; vertical-align: middle; text-align: center;">
+                            <div class="action-buttons" style="display: flex; gap: 8px; justify-content: center; align-items: center; height: 100%;">
+                                <a href="/edit/{{ .ID }}" 
+                                   class="btn btn-edit" 
+                                   style="text-decoration: none; display: flex; align-items: center; justify-content: center; min-width: 80px; height: 36px; font-size: 14px;">
+                                    ✏️ 编辑
+                                </a>
+                                <a href="/delete/{{ .ID }}" 
+                                   class="btn btn-delete" 
+                                   style="text-decoration: none; display: flex; align-items: center; justify-content: center; min-width: 80px; height: 36px; font-size: 14px;"
+                                   onclick="return confirm('确定要删除这条记录吗？此操作不可撤销。')">
+                                    🗑️ 删除
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {{ end }}
+                {{ else }}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 60px 20px; color: #666; font-size: 18px; border: 1px solid #e0e0e0;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                <span>😔</span>
+                                <span>
+                                    {{ if .keyword }}
+                                        未找到匹配 "{{ .keyword }}" 的结果
+                                    {{ else }}
+                                        暂无数据
+                                    {{ end }}
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 分页导航 - 居中显示 -->
+    <div class="pagination" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; flex-wrap: wrap;">
+        {{ if gt .page 1 }}
+            <a href="/home?page=1&page_size={{ .page_size }}&keyword={{ .keyword }}" style="text-decoration: none;">首页</a>
+            <a href="/home?page={{ sub .page 1 }}&page_size={{ .page_size }}&keyword={{ .keyword }}" style="text-decoration: none;">上一页</a>
+        {{ else }}
+            <span class="disabled" style="opacity: 0.5; cursor: not-allowed; color: #6c757d;">首页</span>
+            <span class="disabled" style="opacity: 0.5; cursor: not-allowed; color: #6c757d;">上一页</span>
+        {{ end }}
+        
+        <span style="background-color: #667eea; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; margin: 0 10px;">
+            第 {{ .page }} 页
+        </span>
+        
+        {{ if lt .page .total_pages }}
+            <a href="/home?page={{ add .page 1 }}&page_size={{ .page_size }}&keyword={{ .keyword }}" style="text-decoration: none;">下一页</a>
+            <a href="/home?page={{ .total_pages }}&page_size={{ .page_size }}&keyword={{ .keyword }}" style="text-decoration: none;">末页</a>
+        {{ else }}
+            <span class="disabled" style="opacity: 0.5; cursor: not-allowed; color: #6c757d;">下一页</span>
+            <span class="disabled" style="opacity: 0.5; cursor: not-allowed; color: #6c757d;">末页</span>
+        {{ end }}
+        
+        <div style="margin-left: 20px; color: #666; background-color: #f8f9fa; padding: 6px 15px; border-radius: 20px; border: 1px solid #dee2e6;">
+            每页显示 {{ .page_size }} 条
+        </div>
+    </div>
+</div>
+{{ end }}

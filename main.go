@@ -2,28 +2,28 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"github.com/gin-contrib/multitemplate"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/gin-contrib/multitemplate"
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"html/template"
 )
 
 // VideoInfo 结构体用于存储视频文件的信息
 type VideoInfo struct {
-	ID        int       `json:"id" gorm:"primary_key;column:id"`
-	Filename  string    `json:"filename" gorm:"column:name;not null"`
-	FilePath  string    `json:"filepath" gorm:"column:path;not null"`
-	Filesize  string    `json:"filesize" gorm:"column:size;not null"`
-	CreatedAt time.Time `json:"created_at" gorm:"column:create_time"`
-	UpdatedAt time.Time `json:"updated_at" gorm:"column:update_time"`
+	ID        int    `json:"id" gorm:"primary_key;column:id"`
+	Filename  string `json:"filename" gorm:"column:name;not null"`
+	FilePath  string `json:"filepath" gorm:"column:path;not null"`
+	Filesize  string `json:"filesize" gorm:"column:size;not null"`
+	CreatedAt string `json:"created_at" gorm:"column:create_time"`
+	UpdatedAt string `json:"updated_at" gorm:"column:update_time"`
 }
 
 // 自定义表名
@@ -63,6 +63,45 @@ func initDB() *gorm.DB {
 	return db
 }
 
+func formatTime(t interface{}) string {
+	var str string
+
+	// 1. 获取字符串值
+	switch v := t.(type) {
+	case string:
+		str = v
+	default:
+		// 如果不是字符串，尝试转为字符串
+		str = fmt.Sprintf("%v", v)
+	}
+
+	if str == "" || str == "<nil>" {
+		return "" // 空值直接返回空，不显示
+	}
+
+	// 2. 尝试解析字符串为时间
+	formats := []string{
+		"2006-01-02 15:04:05",
+		"2006-01-02 15:04:05.999", // 带毫秒
+		"2006-01-02T15:04:05",
+		"2006-01-02T15:04:05Z",
+		"2006-01-02",
+	}
+
+	for _, format := range formats {
+		tm, err := time.Parse(format, str)
+		if err == nil {
+			// return tm.Format("2006-01-02 15:04:05") // 输出统一格式
+			return tm.Format("2006-01-02")
+		}
+	}
+
+	// 【重要】如果解析失败，为了不让页面空白，直接返回原始字符串
+	// 这样至少能看到数据，方便排查
+	log.Printf("Warning: Time format '%s' not recognized, returning raw string.", str)
+	return str
+}
+
 // loadTemplates 加载模板文件
 func loadTemplates(templatesDir string) multitemplate.Renderer {
 	r := multitemplate.NewRenderer()
@@ -70,7 +109,7 @@ func loadTemplates(templatesDir string) multitemplate.Renderer {
 	funcMap := template.FuncMap{
 		"add":        func(a, b int) int { return a + b },
 		"sub":        func(a, b int) int { return a - b },
-		"formatDate": func(t time.Time) string { return t.Format("2006-01-02 15:04:05") },
+		"formatDate": formatTime,
 		"mod":        func(i, j int) bool { return i%j == 0 },
 		"contains":   func(s, substr string) bool { return strings.Contains(strings.ToLower(s), strings.ToLower(substr)) },
 	}
@@ -276,7 +315,7 @@ func UpdateVideo(c *gin.Context) {
 	video.Filename = name
 	video.FilePath = path
 	video.Filesize = size
-	video.UpdatedAt = time.Now()
+	video.UpdatedAt = time.Now().Format("2006-01-02 15:04:05") // 格式化为字符串
 
 	result = DB.Save(&video)
 	if result.Error != nil {
@@ -384,12 +423,13 @@ func AddVideo(c *gin.Context) {
 	}
 
 	// 创建新记录
+	nowStr := time.Now().Format("2006-01-02 15:04:05")
 	newVideo := VideoInfo{
 		Filename:  name,
 		FilePath:  path,
 		Filesize:  size,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: nowStr,
+		UpdatedAt: nowStr,
 	}
 
 	// 保存到数据库
@@ -406,14 +446,6 @@ func AddVideo(c *gin.Context) {
 
 	// 成功则重定向回列表页
 	c.Redirect(http.StatusSeeOther, "/home")
-}
-
-// 格式化时间为 "2006-01-02 15:04:05" 格式
-func formatTime(t time.Time) string {
-	if t.IsZero() {
-		return "" // 如果是零值时间，返回空字符串
-	}
-	return t.Format("2006-01-02 15:04:05")
 }
 
 // 全局数据库变量

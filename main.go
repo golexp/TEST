@@ -237,7 +237,7 @@ func GetVideoByID(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "edit.tmpl", gin.H{
 		"video": video,
-		"title": "Edit Video",
+		"title": "编辑视频信息",
 	})
 }
 
@@ -258,7 +258,7 @@ func UpdateVideo(c *gin.Context) {
 				Filesize: size,
 			},
 			"error": "All fields are required",
-			"title": "Edit Video",
+			"title": "更新视频信息",
 		})
 		return
 	}
@@ -274,7 +274,7 @@ func UpdateVideo(c *gin.Context) {
 				Filesize: size,
 			},
 			"error": "Invalid ID format",
-			"title": "Edit Video",
+			"title": "编辑视频信息",
 		})
 		return
 	}
@@ -292,7 +292,7 @@ func UpdateVideo(c *gin.Context) {
 					Filesize: size,
 				},
 				"error": "Video record not found",
-				"title": "Edit Video",
+				"title": "编辑视频信息",
 			})
 			return
 		}
@@ -306,7 +306,7 @@ func UpdateVideo(c *gin.Context) {
 				Filesize: size,
 			},
 			"error": "Database error occurred",
-			"title": "Edit Video",
+			"title": "编辑视频信息",
 		})
 		return
 	}
@@ -323,7 +323,7 @@ func UpdateVideo(c *gin.Context) {
 		c.HTML(http.StatusInternalServerError, "edit.tmpl", gin.H{
 			"video": video,
 			"error": "Update failed: " + result.Error.Error(),
-			"title": "Edit Video",
+			"title": "编辑视频信息",
 		})
 		return
 	}

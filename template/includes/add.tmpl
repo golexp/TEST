@@ -1,0 +1,70 @@
+<!-- templates/add.tmpl -->
+{{ define "content" }}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #333; font-size: 1.5rem;">➕ 新增视频记录</h2>
+        <a href="/home" style="color: #666; text-decoration: none; font-size: 14px;">← 返回列表</a>
+    </div>
+
+    {{ if .error }}
+    <div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #c62828;">
+        <strong>错误:</strong> {{ .error }}
+    </div>
+    {{ end }}
+
+    <form action="/add" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- 名称字段 -->
+        <div>
+            <label for="name" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">视频名称 <span style="color: #dc3545;">*</span></label>
+            <input type="text" 
+                   id="name" 
+                   name="name" 
+                   value="{{ .video.Filename }}" 
+                   placeholder="例如：My_Video_01.mp4" 
+                   required
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; transition: border-color 0.3s;"
+                   onfocus="this.style.borderColor='#667eea'"
+                   onblur="this.style.borderColor='#ddd'">
+        </div>
+
+        <!-- 路径字段 -->
+        <div>
+            <label for="path" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">文件路径 <span style="color: #dc3545;">*</span></label>
+            <input type="text" 
+                   id="path" 
+                   name="path" 
+                   value="{{ .video.FilePath }}" 
+                   placeholder="例如：/data/videos/2026/" 
+                   required
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; font-family: monospace; transition: border-color 0.3s;"
+                   onfocus="this.style.borderColor='#667eea'"
+                   onblur="this.style.borderColor='#ddd'">
+        </div>
+
+        <!-- 文件大小字段 -->
+        <div>
+            <label for="size" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">文件大小 <span style="color: #dc3545;">*</span></label>
+            <input type="text" 
+                   id="size" 
+                   name="size" 
+                   value="{{ .video.Filesize }}" 
+                   placeholder="例如：1.5 GB 或 1500 MB" 
+                   required
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; transition: border-color 0.3s;"
+                   onfocus="this.style.borderColor='#667eea'"
+                   onblur="this.style.borderColor='#ddd'">
+        </div>
+
+        <!-- 提交按钮区域 -->
+        <div style="display: flex; gap: 15px; margin-top: 10px; padding-top: 20px; border-top: 1px solid #eee;">
+            <button type="submit" class="btn" style="background-color: #28a745; color: white; padding: 12px 30px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; transition: opacity 0.3s;">
+                💾 保存记录
+            </button>
+            <a href="/home" class="btn" style="background-color: #6c757d; color: white; padding: 12px 30px; font-size: 16px; text-decoration: none; border-radius: 5px; transition: opacity 0.3s;">
+                取消
+            </a>
+        </div>
+    </form>
+</div>
+{{ end }}

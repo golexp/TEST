@@ -353,69 +353,6 @@ func HealthCheck(c *gin.Context) {
 	})
 }
 
-// GetAddPage 显示新增视频页面
-func GetAddPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "add.tmpl", gin.H{
-		"title": "新增视频",
-		"video": VideoInfo{}, // 传递一个空对象用于表单绑定
-	})
-}
-
-// AddVideo 处理新增视频提交
-func AddVideo(c *gin.Context) {
-	// 从表单获取数据
-	name := c.PostForm("name")
-	path := c.PostForm("path")
-	size := c.PostForm("size")
-
-	// 验证必填字段
-	if name == "" || path == "" || size == "" {
-		// 如果有错误，重新渲染表单并显示错误信息，保留用户输入
-		c.HTML(http.StatusBadRequest, "add.tmpl", gin.H{
-			"title": "新增视频",
-			"video": VideoInfo{
-				Filename: name,
-				FilePath: path,
-				Filesize: size,
-			},
-			"error": "所有字段均为必填项",
-		})
-		return
-	}
-
-	// 创建新记录
-	newVideo := VideoInfo{
-		Filename:  name,
-		FilePath:  path,
-		Filesize:  size,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	// 保存到数据库
-	result := DB.Create(&newVideo)
-	if result.Error != nil {
-		log.Printf("Database create error: %v", result.Error)
-		c.HTML(http.StatusInternalServerError, "add.tmpl", gin.H{
-			"title": "新增视频",
-			"video": newVideo,
-			"error": "保存失败: " + result.Error.Error(),
-		})
-		return
-	}
-
-	// 成功则重定向回列表页
-	c.Redirect(http.StatusSeeOther, "/home")
-}
-
-// 格式化时间为 "2006-01-02 15:04:05" 格式
-func formatTime(t time.Time) string {
-	if t.IsZero() {
-		return "" // 如果是零值时间，返回空字符串
-	}
-	return t.Format("2006-01-02 15:04:05")
-}
-
 // 全局数据库变量
 var DB *gorm.DB
 
@@ -443,8 +380,6 @@ func main() {
 	// 路由定义
 	router.GET("/health", HealthCheck)
 	router.GET("/home", GetVideos)
-	router.GET("/add", GetAddPage)
-	router.POST("/add", AddVideo)
 	router.GET("/edit/:id", GetVideoByID)
 	router.POST("/update", UpdateVideo)
 	router.DELETE("/delete/:id", DeleteVideo)

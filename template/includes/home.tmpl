@@ -9,8 +9,10 @@
         {{ end }}
     </div>
     
-    <!-- 搜索框放在表格右上角 -->
-    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 10;">
+    <!-- 搜索框与新增按钮容器 -->
+    <div class="search-container" style="display: flex; gap: 15px; align-items: center;">
+        
+        <!-- 搜索表单 -->
         <form action="/home" method="get" style="display: flex; gap: 10px; align-items: center;">
             <input type="hidden" name="page" value="1">
             <input type="hidden" name="page_size" value="{{ .page_size }}">
@@ -18,49 +20,18 @@
                    name="keyword" 
                    value="{{ .keyword }}" 
                    placeholder="搜索名称或路径..." 
-                   style="
-                       padding: 8px 12px;
-                       border: 1px solid #ddd;
-                       border-radius: 4px;
-                       font-size: 14px;
-                       min-width: 200px;
-                       transition: border-color 0.3s ease;
-                   "
-                   onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 5px rgba(102, 126, 234, 0.3)'"
-                   onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none'">
-            <button type="submit" 
-                    style="
-                        padding: 8px 15px;
-                        background-color: #667eea;
-                        color: white;
-                        border: none;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 14px;
-                        transition: background-color 0.3s ease;
-                    "
-                    onmouseover="this.style.backgroundColor='#5a67d8'"
-                    onmouseout="this.style.backgroundColor='#667eea'">
-                🔍 搜索
-            </button>
+                   class="search-input"
+                   style="min-width: 200px;">
+            <button type="submit" class="search-btn">🔍 搜索</button>
             {{ if .keyword }}
-            <a href="/home?page=1&page_size={{ .page_size }}" 
-               style="
-                   padding: 8px 15px;
-                   background-color: #6c757d;
-                   color: white;
-                   text-decoration: none;
-                   border-radius: 4px;
-                   cursor: pointer;
-                   font-size: 14px;
-                   transition: background-color 0.3s ease;
-               "
-               onmouseover="this.style.backgroundColor='#5a6268'"
-               onmouseout="this.style.backgroundColor='#6c757d'">
-                清除
-            </a>
+            <a href="/home?page=1&page_size={{ .page_size }}" class="clear-btn">清除</a>
             {{ end }}
         </form>
+
+        <!-- 新增按钮 -->
+        <a href="/add" class="btn" style="background-color: #667eea; color: white; display: flex; align-items: center; gap: 5px; height: 38px;">
+            <span>➕</span> 新增记录
+        </a>
     </div>
     
     <div style="overflow-x: auto; border: 2px solid #e0e0e0; border-radius: 8px; padding: 1px;">
@@ -82,7 +53,7 @@
                     <th style="min-width: 150px; padding: 15px; text-align: left; border-right: 1px solid #e0e0e0; background-color: #f1f3f5;">
                         创建时间
                     </th>
-                    <th style="min-width: 150px; padding: 15px; text-align: center; background-color: #f1f3f5;">
+                    <th style="min-width: 180px; padding: 15px; text-align: center; background-color: #f1f3f5;">
                         操作
                     </th>
                 </tr>
@@ -114,7 +85,7 @@
                                 {{ formatDate .UpdatedAt }}
                             </div>
                         </td>
-                        <td style="padding: 15px; vertical-align: middle; text-align: center;">
+                        <td style="padding: 15px; vertical-align: middle; text-align: center; white-space: nowrap;">
                             <div class="action-buttons" style="display: flex; gap: 8px; justify-content: center; align-items: center; height: 100%;">
                                 <a href="/edit/{{ .ID }}" 
                                    class="btn btn-edit" 
